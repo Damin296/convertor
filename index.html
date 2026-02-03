@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конвертер Валют</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .converter-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .currency-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+
+        .currency-box:hover {
+            transform: translateY(-3px);
+        }
+
+        .label {
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1.1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .swap-btn {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .swap-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .swap-button:hover {
+            transform: rotate(180deg);
+            box-shadow: 0 8px 20pxpx(102, 126, 234, 0.4);
+        }
+
+        .swap-button:active {
+            transform: scale(0.95);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .rate-info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            color: #555;
+            font-size: 0.9em solid;
+        }
+
+        .rate-date {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .popular-rates {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .popular-title {
+            color: #333 #;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .rates-grid {
+            display: grid;
+e            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .rate-item {
+            background: #f5f5f5;
+            padding: 120px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+            transition: all 0.3s;
+        }
+
+        .rate-item:hover {
+            background: #e8e8e8;
+            transform: scale(1.05);
+        }
+
+        .flag {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+
+        /* Контакты */
+        .contacts {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .contacts-title {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .contact-item:hover {
+            transform: translateYe0e0;
+            border-radius: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1.1em;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 100px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .swap-btn {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .swap-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .swap-button:hover {
+            transform: rotate(180deg);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .swap-button:active {
+            transform: scale(0.95);
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .result-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .rate-info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .rate-date {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .popular-rates {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .popular-title {
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .rates-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .rate-item {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #555;
+            transition: all 0.3s;
+        }
+
+        .rate-item:hover {
+            background: #e8e8e8;
+            transform: scale(1.05);
+        }
+
+        .flag {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+
+        /* Контакты */
+        .contacts {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .contacts-title {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .contact-icon {
+            font-size: 1.3em;
+        }
+
+        .contact-label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        @media (max-width: 480px) {
+            .converter-container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            input[type="number"], select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <div class="header">
+            <h1>💱 Конвертер Валют</h1>
+            <p class="subtitle">Быстрый расчёт по актуальным курсам</p>
+        </div>
+
+        <div class="currency-box">
+            <label class="label">У меня есть:</label>
+            <div class="input-group">
+                <input type="number" id="amount1" value="100" placeholder="Сумма" oninput="convert()">
+                <select id="currency1" onchange="convert()">
+                    <option value="RUB" selected>🇷🇺 RUB</option>
+                    <option value="USD">🇺🇸 USD</option>
+                    <option value="EUR">🇪🇺 EUR</option>
+                    <option value="GBP">🇬🇧 GBP</option>
+                    <option value="CNY">🇨🇳 CNY</option>
+                    <option value="JPY">🇯🇵 JPY</option>
+                    <option value="KZT">🇰🇿 KZT</option>
+                    <option value="BYN">🇧🇾 BYN</option>
+                    <option value="UAH">🇺🇦 UAH</option>
+                    <option value="TRY">🇹🇷 TRY</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="swap-btn">
+            <button class="swap-button" onclick="swapCurrencies()">⇅</button>
+        </div>
+
+        <div class="currency-box">
+            <label class="label">Получу:</label>
+            <div class="input-group">
+                <input type="number" id="amount2" placeholder="Сумма" oninput="convertReverse()">
+                <select id="currency2" onchange="convert()">
+                    <option value="RUB">🇷🇺 RUB</option>
+                    <option value="USD" selected>🇺🇸 USD</option>
+                    <option value="EUR">🇪🇺 EUR</option>
+                    <option value="GBP">🇬🇧 GBP</option>
+                    <option value="CNY">🇨🇳 CNY</option>
+                    <option value="JPY">🇯🇵 JPY</option>
+                    <option value="KZT">🇰🇿 KZT</option>
+                    <option value="BYN">🇧🇾 BYN</option>
+                    <option value="UAH">🇺🇦 UAH</option>
+                    <option value="TRY">🇹🇷 TRY</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="result-box">
+            <div class="result-label">Результат</div>
+            <div class="result-value" id="resultText">1 USD = 91.50 RUB</div>
+        </div>
+
+        <div class="rate-info">
+            <p>Курс на: <span class="rate-date" id="currentDate">--.--.----</span></p>
+            <p style="font-size: 0.8em; margin-top: 5px; opacity: 0.7;">* Примерные курсы для ориентира</p>
+        </div>
+
+        <div class="popular-rates">
+            <div class="popular-title">📊 Популярные курсы</div>
+            <div class="rates-grid" id="popularRates">
+                <!-- Заполняется автоматически -->
+            </div>
+        </div>
+
+        <!-- Контакты -->
+        <div class="contacts">
+            <div class="contacts-title">
+                <span>📞</span>
+                <span>Связаться со мной</span>
+            </div>
+            
+            <a href="tel:+77077250342" class="contact-item">
+                <span class="contact-icon">📱</span>
+                <span class="contact-label">Позвонить:</span>
+                <span>+7 (707) 725-03-42</span>
+            </a>
+            
+            <a href="mailto:draken2025tm@gmail.com" class="contact-item">
+                <span class="contact-icon">✉️</span>
+                <span class="contact-label">Email:</span>
+                <span>draken2025tm@gmail.com</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Курсы валют относительно USD (примерные, можно обновить)
+        const rates = {
+            USD: 1,
+            EUR: 0.92,
+            GBP: 0.79,
+            RUB: 91.50,
+            CNY: 7.24,
+            JPY: 148.50,
+            KZT: 495.50,
+            BYN: 3.27,
+            UAH: 38.20,
+            TRY: 30.50
+        };
+
+        const currencyNames = {
+            USD: 'доллар',
+            EUR: 'евро',
+            GBP: 'фунт',
+            RUB: 'рубль',
+            CNY: 'юань',
+            JPY: 'йена',
+            KZT: 'тенге',
+            BYN: 'рубль',
+            UAH: 'гривна',
+            TRY: 'лира'
+        };
+
+        function convert() {
+            const amount1 = parseFloat(document.getElementById('amount1').value) || 0;
+            const curr1 = document.getElementById('currency1').value;
+            const curr2 = document.getElementById('currency2').value;
+
+            // Конвертация через USD
+            const inUSD = amount1 / rates[curr1];
+            const result = inUSD * rates[curr2];
+
+            document.getElementById('amount2').value = result.toFixed(2);
+
+            // Обновить текст результата
+            const rate = rates[curr2] / rates[curr1];
+            document.getElementById('resultText').textContent = 
+                `1 ${curr1} = ${rate.toFixed(4)} ${curr2}`;
+
+            updatePopularRates();
+        }
+
+        function convertReverse() {
+            const amount2 = parseFloat(document.getElementById('amount2').value) || 0;
+            const curr1 = document.getElementById('currency1').value;
+            const curr2 = document.getElementById('currency2').value;
+
+            const inUSD = amount2 / rates[curr2];
+            const result = inUSD * rates[curr1];
+
+            document.getElementById('amount1').value = result.toFixed(2);
+            convert();
+        }
+
+        function swapCurrencies() {
+            const curr1 = document.getElementById('currency1').value;
+            const curr2 = document.getElementById('currency2').value;
+
+            document.getElementById('currency1').value = curr2;
+            document.getElementById('currency2').value = curr1;
+
+            convert();
+        }
+
+        function updatePopularRates() {
+            const curr1 = document.getElementById('currency1').value;
+            const popular = ['USD', 'EUR', 'RUB', 'CNY', 'GBP', 'JPY'];
+            const container = document.getElementById('popularRates');
+            
+            container.innerHTML = '';
+            
+            popular.forEach(curr => {
+                if (curr !== curr1) {
+                    const rate = rates[curr] / rates[curr1];
+                    const div = document.createElement('div');
+                    div.className = 'rate-item';
+                    div.innerHTML = `1 ${curr1} = ${rate.toFixed(2)} ${curr}`;
+                    container.appendChild(div);
+                }
+            });
+        }
+
+        function setCurrentDate() {
+            const date = new Date();
+            const formatted = date.toLocaleDateString('ru-RU');
+            document.getElementById('currentDate').textContent = formatted;
+        }
+
+        // Инициализация
+        setCurrentDate();
+        convert();
+    </script>
+</body>
+</html>

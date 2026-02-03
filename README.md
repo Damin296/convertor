@@ -1,2 +1,2 @@
-# convertor
+# converter
 Конвертер валют | convertor 
